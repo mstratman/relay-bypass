@@ -44,4 +44,4 @@ Here are the specific differences:
 * V2 moved the SW1 and SW2 pads directly under the solder lugs for most SPDT momentary switches
 * V1 doesn't fit as neatly between the screw holes of a 1590A. It can fit a 1590A but needs to be offset from the switch
 * V1 has no LED solder pad, but you can get that functionality by soldering a wire to Pin 3 of U2 or its socket.
-* V1 has 2 extra components that should be omitted (already removed from the PCB if you order from me).
+* V1 has 2 extra components (R3, C4) that should be omitted. These are already removed from the PCB if you ordered from me.
