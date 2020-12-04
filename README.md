@@ -1,6 +1,6 @@
 # Relay Bypass for DIY Guitar Pedals
 
-More info coming soon...
+Visit <https://mas-effects.com/relay-bypass> to purchase pre-made PCBs and pre-programmed AVR ICs.
 
-<https://mas-effects.com/relay-bypass>
-
+Otherwise this repository contains all you need to build your own relay bypass PCB,
+or hack at the one I provide.

@@ -1,0 +1,14 @@
+ID,Name,Designator,Footprint,Quantity,Notes
+1,TLP222G,U1,DIP-4,1,
+10,ATTINY85,U2,DIP-8,1,
+11,78L05,U4,TO-92,1,
+12,100u,C3,CAP_RAD248,1,pre-populated on PCB
+13,FTR-B4CA4.5Z,K1,FTR-B4C,1,
+8,Jumper or Switch,J1,,1,"Jump with a wire or add a switch. When connected, enables optocoupler muting"
+2,MMBT3904,Q1,SOT-23,1,pre-populated on PCB
+3,SS14,D1,SMA_L4.4-W2.8-LS5.4-RD,1,pre-populated on PCB
+4,100n,"C2,C1",C0805,2,pre-populated on PCB
+5,OMIT,C4,C0805,0,Desolder from PCB
+6,10k,R1,R0603,1,pre-populated on PCB
+7,2.2K,R2,R0603,1,pre-populated on PCB
+9,OMIT,R3,R0603,0,Desolder from PCB
