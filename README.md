@@ -31,6 +31,10 @@ By default you can connect the LED pad to the anode of an LED (in series with a 
 
 If you want to use multiple LEDs or need more current than the voltage regulator can provide, then simply use the 5V signal (with an appropriately sized resistor) to drive a transistor. The size of the resistor should limit the base current so the collector current is about 15x greater.
 
+## AVR Microcontroller 
+
+An AVR microcontroller is used at the heart of this module.  You can use either an ATtiny13 or ATtiny85.  The code for this is in the [relay-bypass folder](./relay-bypass/relay-bypass.ino).  You'll find there are a handful of `#define` statements to allow you to easily change its behavior.
+
 ## V1 vs V2
 
 V1 (green PCBs) are just as capable as the V2 PCBs (black), but they aren't as convenient. As such I'm selling them at a deep discount. It's a great way to stock up on some budget relay boards.
