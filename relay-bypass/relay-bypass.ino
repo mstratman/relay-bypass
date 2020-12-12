@@ -2,6 +2,9 @@
 #include <util/delay.h>
 #include <avr/eeprom.h>
 
+// By default we assume normally open unless this is defined
+//#define NORMALLY_CLOSED
+
 // If you define SIMPLIFIED_DEBOUNCE it will trust the
 // first instance of a button press, then ignore subsequent
 // presses for the SIMPLIFIED_DEBOUNCE_DELAY.
@@ -10,7 +13,7 @@
 #define SIMPLIFIED_DEBOUNCE
 
 #ifdef SIMPLIFIED_DEBOUNCE
-# define DEBOUNCE_DELAY 150
+# define DEBOUNCE_DELAY 250
 #else
 # define DEBOUNCE_DELAY 14
 #endif
@@ -62,7 +65,7 @@ void setup() {
   // wait for the pullup to do its job,
   // otherwise PIN_SW can sometimes get false LOW readings
   _delay_ms(5);
-  sw_last_loop = PINB & (1 << PIN_SW);
+  sw_last_loop = read_switch();
   sw_state = sw_last_loop;
 
   uint8_t auto_on = 0x0;
@@ -109,7 +112,7 @@ void setup() {
 }
 
 void loop() {
-  uint8_t sw_this_loop = PINB & (1 << PIN_SW);
+  uint8_t sw_this_loop = read_switch();
 
   unsigned long now = millis();
 
@@ -168,7 +171,7 @@ void toggle_bypass_state() {
     PORTB &= ~(1 << PIN_MUTE);
 
     // since we've been blocking, the switch may have been released.
-    sw_state = PINB & (1 << PIN_SW);
+    sw_state = read_switch();
   }
 }
 
@@ -180,5 +183,13 @@ void write_bypass() {
     PORTB |= (1 << PIN_LED); // high
     PORTB |= (1 << PIN_BYPASS); // high
   }
+}
+
+uint8_t read_switch() {
+  uint8_t rv = PINB & (1 << PIN_SW);
+#ifdef NORMALLY_CLOSED
+  rv = ! rv;
+#endif
+  return rv;
 }
 
