@@ -9,4 +9,4 @@ ID,Name,Designator,Footprint,Quantity,NOTE
 8,ATtiny13 or ATiny85,U2,DIP-8,1,Requires programming
 9,78L05,U4,TO-92-3,1,
 10,100u,C3,CAP_RAD248,1,
-11,FTR-B4C,K1,FTR-B4C,1,
+11,FTR-B4C,K1,FTR-B4C non-latching,1,
