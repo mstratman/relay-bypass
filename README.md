@@ -14,7 +14,7 @@ This is a true-bypass module that provides:
 * Fits easily in a 1590A
 * Optional optocoupler muting can be enabled with a switch or jumper to mute any popping your circuit might exhibit while switching
 * Hold when powering on to toggle auto-on/auto-off
-* VERY cost effective. [Shop now](https://mas-effects.square.site/shop/diy/5).
+* VERY cost effective. [Shop now](https://shop.mas-effects.com/collections/diy/products/relay-bypass).
 * Totally free and open source
 
 ## Build Instructions
