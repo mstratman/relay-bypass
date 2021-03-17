@@ -1,0 +1,9 @@
+ID,Name,Designator,Footprint,Quantity,NOTE
+1,TLP222G,U1,DIP-4,1,
+4,100n,"C2,C1",C0805,2,Pre-soldered
+6,2.2K,R2,R0603,1,Pre-soldered
+7,0,J1,,,To enable mute
+8,ATtiny13 or ATiny85,U2,DIP-8,1,Requires programming
+9,78L05,U4,TO-92-3,1,
+10,100u,C3,CAP_RAD248,1,
+11,FTR-B4CB4.5Z,K1,FTR-B4CB4.5Z,1,
