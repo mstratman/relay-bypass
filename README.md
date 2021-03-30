@@ -37,7 +37,11 @@ If you want to use multiple LEDs or need more current than the voltage regulator
 
 An AVR microcontroller is used at the heart of this module.  You can use either an ATtiny13 or ATtiny85.  The code for this is in the [relay-bypass folder](./relay-bypass/relay-bypass.ino).  You'll find there are a handful of `#define` statements to allow you to easily change its behavior.
 
-## V1 vs V2
+## V1.1 vs V1.2 vs V1.3
+
+V3 (1.3) is the latest version in the root of this repository. It uses a latching relay. It's not as DIY-friendly as V1 and V2 since it requires you to write a fuse to disable the RESET pin and turn it into a GPIO pin. After doing this you can't re-program the ATtiny without special equipment.
+
+V1 and V2 have all the same features, but use a non-latching relay instead.
 
 V1 (green PCBs) are just as capable as the V2 PCBs (black), but they aren't as convenient. As such I'm selling them at a deep discount. It's a great way to stock up on some budget relay boards.
 
