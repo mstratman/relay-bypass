@@ -2,6 +2,8 @@
 #include <util/delay.h>
 #include <avr/eeprom.h>
 
+//#define DEBUG
+
 // By default we assume normally open unless this is defined
 //#define NORMALLY_CLOSED
 
@@ -22,11 +24,18 @@
 // the switch to temporarily engage/bypass.
 //#define DISABLE_TEMPORARY_SWITCH
 
+#ifdef DEBUG
+#define PIN_J1     PB5
+#define PIN_SW     PB2
+#else
 #define PIN_J1     PB2
-#define PIN_SW     PB3
+#define PIN_SW     PB5
+#endif
+
 #define PIN_LED    PB4
-#define PIN_BYPASS PB0
 #define PIN_MUTE   PB1
+#define PIN_BYPASS PB0
+#define PIN_ENGAGE PB3
 
 // If you hold down the switch for at least this number of ms, then
 // we assume you are holding it down to temporarily toggle the state,
@@ -41,6 +50,7 @@
 #define MUTE_LENGTH 35
 #define MUTED_RELAY_DELAY 20
 
+#define RELAY_SWITCH_TIME 40
 
 /* TBD: If space requires we can consolidate these state vars into a single byte */
 uint8_t is_bypassed  = 0;
@@ -58,6 +68,7 @@ void setup() {
   DDRB &= ~(1 << PIN_SW); // input
   PORTB |= (1 << PIN_SW); // activate pull-up resistor
   DDRB |= (1 << PIN_BYPASS); // output
+  DDRB |= (1 << PIN_ENGAGE); // output
   DDRB |= (1 << PIN_LED); // output
   DDRB |= (1 << PIN_MUTE); // output
 
@@ -107,7 +118,7 @@ void setup() {
       PORTB &= ~(1 << PIN_LED); //low
       _delay_ms(200);
     }
-    write_bypass(); // set the LED again
+    set_led(); // set the LED again
   }
 }
 
@@ -176,12 +187,28 @@ void toggle_bypass_state() {
 }
 
 void write_bypass() {
+  set_led();
+  PORTB &= ~(1 << PIN_BYPASS); // low
+  PORTB &= ~(1 << PIN_ENGAGE); // low
+  // There's a non-zero chance the blocking we do here could
+  // interfere with the switch debouncing.
+  // But with the simplified debounce it's a non-issue.
   if (is_bypassed) {
-    PORTB &= ~(1 << PIN_LED); // low
+    PORTB |= (1 << PIN_BYPASS); // high
+    _delay_ms(RELAY_SWITCH_TIME);
     PORTB &= ~(1 << PIN_BYPASS); // low
   } else {
+    PORTB |= (1 << PIN_ENGAGE); // high
+    _delay_ms(RELAY_SWITCH_TIME);
+    PORTB &= ~(1 << PIN_ENGAGE); // low
+  }
+}
+
+void set_led() {
+  if (is_bypassed) {
+    PORTB &= ~(1 << PIN_LED); // low
+  } else {
     PORTB |= (1 << PIN_LED); // high
-    PORTB |= (1 << PIN_BYPASS); // high
   }
 }
 

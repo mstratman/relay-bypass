@@ -24,14 +24,7 @@
 // the switch to temporarily engage/bypass.
 //#define DISABLE_TEMPORARY_SWITCH
 
-#ifdef DEBUG
-#define PIN_J1     PB5
 #define PIN_SW     PB2
-#else
-#define PIN_J1     PB2
-#define PIN_SW     PB5
-#endif
-
 #define PIN_LED    PB4
 #define PIN_MUTE   PB1
 #define PIN_BYPASS PB0
@@ -41,12 +34,14 @@
 // we assume you are holding it down to temporarily toggle the state,
 // and want it to toggle back on release.
 // i.e. it's not a quick press and release.
-#define TEMPORARY_SWITCH_TIME 350
+#define TEMPORARY_SWITCH_TIME 500
 
-/* If J1 is shorted, pulling PIN_J1 to ground, we will do muting:
- * 1. When switch is pressed, start muting for MUTE_LENGTH ms.
+/* 1. When switch is pressed, start muting for MUTE_LENGTH ms.
  * 2. Wait MUTED_RELAY_DELAY before actually toggling the relay though.
+ * IMPORTANT NOTE: To disable the physical muting, leave the optocoupler diode floating.
+ *                 i.e. don't connect the MUTE jumpers on the PCB
  */
+#define USE_MUTE 1
 #define MUTE_LENGTH 35
 #define MUTED_RELAY_DELAY 20
 
@@ -54,7 +49,7 @@
 
 /* TBD: If space requires we can consolidate these state vars into a single byte */
 uint8_t is_bypassed  = 0;
-uint8_t use_mute     = 0;
+uint8_t use_mute     = USE_MUTE;
 uint8_t sw_state     = HIGH; // its debounced state. i.e. what we assume is intended by player
 uint8_t sw_last_loop = HIGH; // state last loop
 
@@ -63,8 +58,6 @@ unsigned long sw_pressed_at   = 0;
 
 
 void setup() {
-  DDRB &= ~(1 << PIN_J1); // input
-  PORTB |= (1 << PIN_J1); // activate pull-up resistor
   DDRB &= ~(1 << PIN_SW); // input
   PORTB |= (1 << PIN_SW); // activate pull-up resistor
   DDRB |= (1 << PIN_BYPASS); // output
@@ -99,11 +92,6 @@ void setup() {
     }
 
     is_bypassed = auto_on;
-  }
-
-  uint8_t j1 = PINB & (1 << PIN_J1);
-  if (j1 == LOW) {
-    use_mute = 1;
   }
 
   write_bypass(); // get the relay setup before blinking the LED for EEPROM
