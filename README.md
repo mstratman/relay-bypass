@@ -37,17 +37,11 @@ If you want to use multiple LEDs or need more current than the voltage regulator
 
 An AVR microcontroller is used at the heart of this module.  You can use either an ATtiny13 or ATtiny85.  The code for this is in the [relay-bypass folder](./relay-bypass/relay-bypass.ino).  You'll find there are a handful of `#define` statements to allow you to easily change its behavior.
 
-## V1.1 vs V1.2 vs V1.3
+## Versions:
 
-V3 (1.3) is the latest version in the root of this repository. It uses a latching relay. It's not as DIY-friendly as V1 and V2 since it requires you to write a fuse to disable the RESET pin and turn it into a GPIO pin. After doing this you can't re-program the ATtiny without special equipment.
+1.4 is the latest version in the root of this repository. It uses a latching relay for slightly reduced power consumption.
 
-V1 and V2 have all the same features, but use a non-latching relay instead.
+1.3 also uses a latching relay, but is not as DIY-friendly if you scratch-build (from a kit, however, it's exactly the same as V4). It requires you to write a fuse to disable the RESET pin and turn it into a GPIO pin. After doing this you can't re-program the ATtiny without special equipment. i.e. if you're not careful you may waste some microcontrollers.
 
-V1 (green PCBs) are just as capable as the V2 PCBs (black), but they aren't as convenient. As such I'm selling them at a deep discount. It's a great way to stock up on some budget relay boards.
+1.2 has all the same features as later versions, but uses a non-latching relay instead.
 
-Here are the specific differences:
-
-* V2 moved the SW1 and SW2 pads directly under the solder lugs for most SPDT momentary switches
-* V1 doesn't fit as neatly between the screw holes of a 1590A. It can fit a 1590A but needs to be offset from the switch
-* V1 has no LED solder pad, but you can get that functionality by soldering a wire to Pin 3 of U2 or its socket.
-* V1 has 2 extra components (R3, C4) that should be omitted. These are already removed from the PCB if you ordered from me.
