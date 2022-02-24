@@ -50,8 +50,8 @@
 /* TBD: If space requires we can consolidate these state vars into a single byte */
 uint8_t is_bypassed  = 0;
 uint8_t use_mute     = USE_MUTE;
-uint8_t sw_state     = HIGH; // its debounced state. i.e. what we assume is intended by player
-uint8_t sw_last_loop = HIGH; // state last loop
+uint8_t sw_state;     // its debounced state. i.e. what we assume is intended by player
+uint8_t sw_last_loop; // state last loop
 
 unsigned long sw_stable_since = 0;
 unsigned long sw_pressed_at   = 0;
