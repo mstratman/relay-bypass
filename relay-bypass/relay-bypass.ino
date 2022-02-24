@@ -84,7 +84,7 @@ void setup() {
     }
 
     // If switch is held when powered on, toggle the auto-on feature
-    if (sw_last_loop == LOW) {
+    if (sw_last_loop == 0) {
       is_bypassed = ! is_bypassed;
       auto_on ^= 0x1;
       eeprom_update_byte((uint8_t *)0x0, auto_on);
@@ -132,7 +132,7 @@ void loop() {
 #endif
     sw_state = sw_this_loop;
 
-    if (sw_state == LOW) {// sw pressed
+    if (sw_state == 0) {// sw pressed
       sw_pressed_at = now;
       toggle_bypass_state();
 
