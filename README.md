@@ -52,9 +52,7 @@ An AVR microcontroller is used at the heart of this module.  You can use either 
 1.2 has all the same features as later versions, but uses a non-latching relay instead.
 
 
-## COPYRIGHT and LICENSE
-
-MIT License
+## COPYRIGHT and LICENSE (MIT)
 
 Copyright (c) 2022 Mark A. Stratman <mark@mas-effects.com>
 
