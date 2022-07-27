@@ -19,7 +19,9 @@ This is a true-bypass module that provides:
 
 ## TODO
 
-This version doesn't save your current state to the EEPROM. I have a version in another codebase ([for The Expanse](https://mas-effects.com/expanse/)) that does this, and utilizes wear leveling to give you a MUCH longer practical lifetime (as opposed to just storing the state in the same memory location repeatedly).  I will adapt it for the next version, but in the meantime if you want it let me know (mark@mas-effects.com) and I will send you some code snippets.
+This version doesn't save your current state to the EEPROM. Instead it lets you set auto-on or auto-off. That's fine for many people, but probably not ideal.
+
+I have a version in another codebase ([for The Expanse](https://mas-effects.com/expanse/)) that does this, and utilizes wear leveling to give you a MUCH longer practical lifetime (as opposed to just storing the state in the same memory location repeatedly).  I will adapt it for the next version, but in the meantime if you want it let me know (mark@mas-effects.com) and I will send you some code snippets.
 
 ## Build Instructions
 
