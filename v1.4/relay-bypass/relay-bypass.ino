@@ -1,18 +1,8 @@
-// This is v1.49 - for use with the v1.4 PCB.
-// It adds memory for the most recent engage/bypass setting.
-// It also disables the muting since we're sold out of optocouplers
-// and they've been discontinued.
-
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/eeprom.h>
 
-//------------------------------------------------
-// BASIC BEHAVIOR SETTINGS:
-
-// which uC
-#define ATTINY85
-//#define ATTINY13
+//#define DEBUG
 
 // By default we assume normally open unless this is defined
 //#define NORMALLY_CLOSED
@@ -24,37 +14,15 @@
 // debounce that looks for a stabilized change of state.
 #define SIMPLIFIED_DEBOUNCE
 
-// Define DISABLE_TEMPORARY_SWITCH to turn off the ability to hold
-// the switch to temporarily engage/bypass.
-//#define DISABLE_TEMPORARY_SWITCH
-
-#define USE_MUTE 0
-//------------------------------------------------
-
-
-
-#ifdef ATTINY85
-# define EEPROM_SIZE 512
-#else
-# define EEPROM_SIZE 64
-#endif
-
-#define EEPROM_CHUNK_SIZE 1 // we're choosing to use 1 byte
-#define EEPROM_ADDR_FLAG_MASK 0b10000000  // chosen to indicate current addr
-#define ADDR_BOOT_SETTING   0x0
-#define ADDR_BYPASS_SETTING 0x1 // starting location to look
-uint16_t eeprom_addr = ADDR_BYPASS_SETTING;
-
-// These will also indicate the number of LED blinks
-#define ON_BOOT_ENGAGE   0x3
-#define ON_BOOT_BYPASS   0x4
-#define ON_BOOT_REMEMBER 0x5
-
 #ifdef SIMPLIFIED_DEBOUNCE
 # define DEBOUNCE_DELAY 250
 #else
 # define DEBOUNCE_DELAY 14
 #endif
+
+// Define DISABLE_TEMPORARY_SWITCH to turn off the ability to hold
+// the switch to temporarily engage/bypass.
+//#define DISABLE_TEMPORARY_SWITCH
 
 #define PIN_SW     PB2
 #define PIN_LED    PB4
@@ -73,12 +41,11 @@ uint16_t eeprom_addr = ADDR_BYPASS_SETTING;
  * IMPORTANT NOTE: To disable the physical muting, leave the optocoupler diode floating.
  *                 i.e. don't connect the MUTE jumpers on the PCB
  */
+#define USE_MUTE 1
 #define MUTE_LENGTH 35
 #define MUTED_RELAY_DELAY 20
 
 #define RELAY_SWITCH_TIME 40
-
-
 
 /* TBD: If space requires we can consolidate these state vars into a single byte */
 uint8_t is_bypassed  = 0;
@@ -89,8 +56,6 @@ uint8_t sw_last_loop; // state last loop
 unsigned long sw_stable_since = 0;
 unsigned long sw_pressed_at   = 0;
 
-
-uint8_t use_eeprom = 0;
 
 void setup() {
   DDRB &= ~(1 << PIN_SW); // input
@@ -107,57 +72,40 @@ void setup() {
   sw_last_loop = read_switch();
   sw_state = sw_last_loop;
 
-  uint8_t blink_n_times = 0;
+  uint8_t auto_on = 0x0;
+
+  bool signal_eeprom_written = false;
 
   if (eeprom_is_ready()) {
-    uint8_t on_boot_setting = eeprom_read_byte((const uint8_t *)ADDR_BOOT_SETTING);
+    auto_on = eeprom_read_byte((uint8_t *)0x0);
 
-    if (on_boot_setting == ON_BOOT_ENGAGE) {
-      is_bypassed = 0;
-
-    } else if (on_boot_setting == ON_BOOT_BYPASS) {
-      is_bypassed = 1;
-
-    // If this hasn't been set (probably 0xff), we'll always assume it's ON_BOOT_REMEMBER
-    } else {
-      on_boot_setting = ON_BOOT_REMEMBER;
-      is_bypassed = eeprom_read_is_bypassed();
+    if (auto_on != 0x0 && auto_on != 0x1) { // never written, probably 0xff
+      auto_on = 0x0;
     }
 
-    // If switch is held when powered on, toggle the on_boot setting
+    // If switch is held when powered on, toggle the auto-on feature
     if (sw_last_loop == 0) {
-      if (on_boot_setting == ON_BOOT_REMEMBER) {
-        on_boot_setting = ON_BOOT_ENGAGE;
-      } else if (on_boot_setting == ON_BOOT_ENGAGE) {
-        on_boot_setting = ON_BOOT_BYPASS;
-      } else {
-        on_boot_setting = ON_BOOT_REMEMBER;
-        // More important than getting the is_bypassed setting is
-        // setting the eeprom_addr, which this call does.
-        is_bypassed = eeprom_read_is_bypassed();
-      }
-      eeprom_update_byte((uint8_t *)ADDR_BOOT_SETTING, on_boot_setting);
-      blink_n_times = on_boot_setting;
+      is_bypassed = ! is_bypassed;
+      auto_on ^= 0x1;
+      eeprom_update_byte((uint8_t *)0x0, auto_on);
+      signal_eeprom_written = true;
     }
 
-    if (on_boot_setting == ON_BOOT_REMEMBER) {
-      use_eeprom = 1;
-    }
+    is_bypassed = auto_on;
   }
 
   write_bypass(); // get the relay setup before blinking the LED for EEPROM
   _delay_ms(1);
 
-  if (blink_n_times > 0) {
+  if (signal_eeprom_written) {
     // Blink LED. Ordinarily this should be done asynchronously,
     // but on initial boot it probably doesn't matter
-    for (int i = 1; i < blink_n_times; i++) {
+    for (int i = 0; i < 3; i++) {
       PORTB |= (1 << PIN_LED); //high
       _delay_ms(200);
       PORTB &= ~(1 << PIN_LED); //low
       _delay_ms(200);
     }
-    _delay_ms(1000);
     set_led(); // set the LED again
   }
 }
@@ -202,45 +150,6 @@ void loop() {
   sw_last_loop = sw_this_loop;
 }
 
-// returns is_bypassed
-uint8_t eeprom_read_is_bypassed() {
-  // This may not find the flag, so these two defaults are important.
-  eeprom_addr = ADDR_BYPASS_SETTING;
-  uint8_t rv = 0;
-
-  for (uint16_t i = 0; i < (EEPROM_SIZE / EEPROM_CHUNK_SIZE); i++) {
-    uint16_t addr = i * EEPROM_CHUNK_SIZE;
-
-    uint8_t b = eeprom_read_byte((const uint8_t *)addr);
-    if (b & EEPROM_ADDR_FLAG_MASK) {
-      eeprom_addr = addr;
-
-      rv = b & 0x1; // remove the EEPROM_ADDR_FLAG_MASK bit
-      break;
-    }
-  }
-  return rv;
-}
-
-// writes is_bypassed
-void eeprom_write_is_bypassed(uint8_t setting) {
-  // don't unnecessarily wear out the eeprom.
-  if (use_eeprom == 0) {
-    return;
-  }
-
-  eeprom_update_byte((uint8_t *)eeprom_addr, 0x0); // Clear flag on previous location.
-                                        // This will also clean up any default data in
-                                        // the eeprom that coincidentally had the flag bit set.
-
-  if (eeprom_addr < (EEPROM_SIZE - EEPROM_CHUNK_SIZE)) {
-    eeprom_addr += EEPROM_CHUNK_SIZE;
-  } else {
-    eeprom_addr = ADDR_BYPASS_SETTING;
-  }
-  eeprom_update_byte((uint8_t *)eeprom_addr, EEPROM_ADDR_FLAG_MASK | setting);
-}
-
 // This may block. See comments
 void toggle_bypass_state() {
   if (use_mute) {
@@ -263,8 +172,6 @@ void toggle_bypass_state() {
     // since we've been blocking, the switch may have been released.
     sw_state = read_switch();
   }
-
-  eeprom_write_is_bypassed(is_bypassed);
 }
 
 void write_bypass() {
