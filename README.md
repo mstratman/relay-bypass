@@ -13,15 +13,10 @@ This is a true-bypass module that provides:
 * Quick tap to switch between engaged and bypass, or hold the footswitch down to temporarily toggle until you release it
 * Fits easily in a 1590A
 * Optional optocoupler muting can be enabled with a switch or jumper to mute any popping your circuit might exhibit while switching
-* Hold when powering on to toggle auto-on/auto-off
+* Hold when powering on to toggle between remembering bypass state (LED blinks 5 times), auto-on (3 blinks), or auto-off (4 blinks)
 * VERY cost effective. [Shop now](https://shop.mas-effects.com/collections/diy/products/relay-bypass).
 * Totally free and open source
 
-## TODO
-
-This version doesn't save your current state to the EEPROM. Instead it lets you set auto-on or auto-off. That's fine for many people, but probably not ideal.
-
-I have a version in another codebase ([for The Expanse](https://mas-effects.com/expanse/)) that saves state, and utilizes wear leveling to give you a MUCH longer practical lifetime (as opposed to just storing the state in the same memory location repeatedly).  I will adapt it for the next version, but in the meantime if you want it let me know (mark@mas-effects.com) and I will send you some code snippets.
 
 ## Build Instructions
 
@@ -32,6 +27,8 @@ Mount a normally-open, momentary SPST switch on the PCB next to the relay using 
 ## Optocoupler Muting
 
 If you connect the 2 pads labeled J1 with a jumper or a switch, this will tell the IC to momentarily mute (35ms) the signal while switching. This can be useful if you have a circuit that pops when engaged.
+
+This needs to be enabled in the firmware. If you buy from me the firmware may disable this if you didn't get an optocoupler, unless you ask specifically for the behavior to be enabled.
 
 ## Multiple LEDs
 
@@ -44,6 +41,8 @@ If you want to use multiple LEDs or need more current than the voltage regulator
 An AVR microcontroller is used at the heart of this module.  You can use either an ATtiny13 or ATtiny85.  The code for this is in the [relay-bypass folder](./relay-bypass/relay-bypass.ino).  You'll find there are a handful of `#define` statements to allow you to easily change its behavior.
 
 ## Versions:
+
+1.49 uses the 1.4 PCB and same hardware setup, but adds memory to the bypass state. By default it will remember whether the effect is engaged or bypassed (and uses wear leveling to store this). Holding the switch down at startup will toggle the behavior.
 
 1.4 is the latest version in the root of this repository. It uses a latching relay for slightly reduced power consumption.
 
