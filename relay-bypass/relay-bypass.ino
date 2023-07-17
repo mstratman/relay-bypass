@@ -11,8 +11,8 @@
 // BASIC BEHAVIOR SETTINGS:
 
 // which uC
-#define ATTINY85
-//#define ATTINY13
+//#define ATTINY85
+#define ATTINY13
 
 // By default we assume normally open unless this is defined
 //#define NORMALLY_CLOSED
